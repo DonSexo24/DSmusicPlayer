@@ -51,7 +51,7 @@ class Node(Generic[T]):
         self.next = None
 
     def __iter__(self):
-        yield self.key
+        yield self.value
 
 
 # -------------------------------------------------------------------------------------------------------------------#
@@ -300,10 +300,9 @@ class HashMap(Generic[T]):
 
     def __iter__(self):
         for node in self.table:
-            current_node = node
-            while current_node is not None:
-                yield current_node
-                current_node = current_node
+            while node is not None:
+                yield from node
+                node = node.next
 
     def size(self):
         return self.size

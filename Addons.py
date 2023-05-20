@@ -334,3 +334,30 @@ class Artist(ComparableValue):
 
     def __ge__(self, other: 'Artist') -> bool:
         return self.__name >= other.get_name()
+    
+    
+#-------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #Song Filter by 'AND' search with Tag compatibility
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+#-------------------------------------------------------------------------------------------------------------------#    
+
+    
+def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
+    aux_songs = LinkedList[Song]()
+    for song in songs:
+        flag = True
+        for tag_to_evaluate in tags:
+            if not song.contains_partial_tag(tag_to_evaluate):
+                flag = False
+        if flag.__eq__(True):
+            aux_songs.append(song)
+
+    return aux_songs    

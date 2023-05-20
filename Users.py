@@ -26,7 +26,7 @@ class Users:
     def save_users(self):
         with open(self.filename, "w") as file:
             for username in self.users:
-                user = self.users.get(username)
+                user = self.users.get_key(username)
                 file.write(f"{username}:{user.password}\n")
 
     def put(self, username, user):
@@ -34,7 +34,7 @@ class Users:
         self.save_users()
 
     def get(self, username):
-        return self.users.get(username)
+        return self.users.get_key(username)
 
     def contains(self, username):
         return self.users.contains_key(username)

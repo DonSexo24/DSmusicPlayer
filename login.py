@@ -2,15 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 from Users import Users, User
 
+
 # Function to handle the login process
 def login():
     username = username_entry.get()
     password = password_entry.get()
+    user_manager = Users("users.txt")
 
     # Check if the username exists in the HashMap
-    if Users.contains_key(username):
+    if user_manager.contains(username):
         # Retrieve the user object associated with the username
-        user = Users.get(username)
+        user = user_manager.get(username)
 
         # Check if the entered password matches the stored password
         if password == user.password:
@@ -19,6 +21,7 @@ def login():
             messagebox.showerror("Error", "Invalid password!")
     else:
         messagebox.showerror("Error", "Invalid username!")
+
 
 # Function to handle the registration process
 def register():
@@ -38,8 +41,6 @@ def register():
         # Add the new user to the HashMap
         user_manager.put(username, new_user)
         messagebox.showinfo("Success", "Registration successful!")
-
-
 
 
 # Create the login window

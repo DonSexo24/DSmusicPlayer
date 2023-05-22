@@ -1,3 +1,5 @@
+import os
+
 from DSnest import ComparableValue, LinkedList, DoubleLinkedList, BinaryTree
 from DStools import retrieve_audio,retrieve_image
 
@@ -136,7 +138,7 @@ class Song(ComparableValue):
 
         path = os.path.join(os.path.join(os.getcwd(), "Model"), "Files")
 
-        self.__cover = Cover(code, self.__url, path)
+        # self.__cover = Cover(code, self.__url, path)
         # self.__audio = retrieve_audio(code, self.__url, path)
         self.__tags = BinaryTree[Tag]()
         self.__tags.add(self.__genre)

@@ -1,9 +1,11 @@
 from DSnest import HashMap
 
+
 class User:
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
 
 class Users:
     def __init__(self, filename):
@@ -36,5 +38,5 @@ class Users:
     def get(self, username):
         return self.users.get(username)
 
-    def contains(self, username):
+    def contains(self, username: str):
         return self.users.contains_key(username)

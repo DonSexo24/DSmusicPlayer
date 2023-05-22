@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from Users import Users, User
 
+
 # Function to handle the login process
 def login():
     username = username_entry.get()
@@ -21,6 +22,7 @@ def login():
     else:
         messagebox.showerror("Error", "Invalid username!")
 
+
 # Function to handle the registration process
 def register():
     username = username_entry.get()
@@ -39,8 +41,6 @@ def register():
         # Add the new user to the HashMap
         user_manager.put(username, new_user)
         messagebox.showinfo("Success", "Registration successful!")
-
-
 
 
 # Create the login window

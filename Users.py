@@ -11,7 +11,7 @@ class Users:
         self.users = self.load_users()
 
     def load_users(self):
-        users = HashMap[str]()
+        users = HashMap[User]()
         try:
             with open(self.filename, "r") as file:
                 lines = file.readlines()

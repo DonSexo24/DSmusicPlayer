@@ -6,11 +6,12 @@ from Users import Users, User
 def login():
     username = username_entry.get()
     password = password_entry.get()
+    user_manager = Users("users.txt")
 
     # Check if the username exists in the HashMap
-    if Users.contains_key(username):
+    if user_manager.contains(username):
         # Retrieve the user object associated with the username
-        user = Users.get(username)
+        user = user_manager.get(username)
 
         # Check if the entered password matches the stored password
         if password == user.password:

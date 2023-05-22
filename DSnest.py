@@ -1,7 +1,5 @@
 from typing import TypeVar, Union, Generic
 from abc import ABC, abstractmethod
-import os
-import fnmatch
 
 
 class ComparableValue(ABC):
@@ -27,6 +25,7 @@ class ComparableValue(ABC):
 
 
 T = TypeVar('T', bound=ComparableValue)
+K = TypeVar('K', bound=ComparableValue)
 S = TypeVar('S', bound=Union['BinaryTree', 'CircularList', 'DoubleLinkedList', 'HashMap', 'LinkedList'])
 
 
@@ -714,7 +713,7 @@ class DoubleLinkedList(Generic[T]):
 # -------------------------------------------------------------------------------------------------------------------#
 
 
-class HashMap(Generic[T]):
+class HashMap(Generic[K, T]):
     DEFAULT_CAPACITY = 16
     DEFAULT_LOAD_FACTOR = 0.75
 
@@ -747,7 +746,7 @@ class HashMap(Generic[T]):
             node = node.next
         return False
 
-    def put_in(self, key, value: T):
+    def put_in(self, key: K, value: T):
         index = self.hash_of(key)
         node = self.table[index]
         while node is not None:
@@ -762,7 +761,7 @@ class HashMap(Generic[T]):
         if self.size > self.capacity * self.load_factor:
             self.resize()
 
-    def get(self, key):
+    def get(self, key: K) -> T | None:
         index = self.hash_of(key)
         node = self.table[index]
         while node is not None:

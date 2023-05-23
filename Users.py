@@ -13,7 +13,7 @@ class Users:
         self.users = self.load_users()
 
     def load_users(self):
-        users = HashMap[User]()
+        users = HashMap[str, User]()
         try:
             with open(self.filename, "r") as file:
                 lines = file.readlines()
@@ -27,16 +27,16 @@ class Users:
 
     def save_users(self):
         with open(self.filename, "w") as file:
-            for username in self.users:
-                user = self.users.get_key(username)
-                file.write(f"{username}:{user.password}\n")
+            for user in self.users:
+                file.write(f"{user.username}:{user.password}\n")
+                print(user.username, user.password)
 
     def put(self, username, user):
         self.users.put_in(username, user)
         self.save_users()
 
     def get(self, username):
-        return self.users.get_key(username)
+        return self.users.get(username)
 
     def contains(self, username: str):
         return self.users.contains_key(username)

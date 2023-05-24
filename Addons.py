@@ -125,7 +125,7 @@ class Tag(ComparableValue):
 class Song(ComparableValue):
 
     def __init__(self, name: str, code: str, album: Album, artist, year: str, duration: int,
-                 genre: str, url: str):
+                 genre: Genre, url: str):
 
         self.__name = name
         self.__id = code
@@ -133,7 +133,7 @@ class Song(ComparableValue):
         self.__artist = artist
         self.__year = year
         self.__duration = duration
-        self.__genre = Tag(genre)
+        self.__genre = genre
         self.__url = url
 
         path = os.path.join(os.path.join(os.getcwd(), "Model"), "Files")
@@ -141,7 +141,7 @@ class Song(ComparableValue):
         # self.__cover = Cover(code, self.__url, path)
         # self.__audio = retrieve_audio(code, self.__url, path)
         self.__tags = BinaryTree[Tag]()
-        self.__tags.add(self.__genre)
+        self.__tags.add(self.__genre.get_name())
         self.__tags.add(Tag(self.__artist.get_name()))
         self.__tags.add(Tag(album.name))
         self.__tags.balance()
@@ -184,9 +184,14 @@ class Song(ComparableValue):
 
     def get_genre(self):
         return self.__genre
+    
+    def get_genre_name(self):
+        return self.__genre.get_name()
 
-    def set_genre(self, genre: str):
-        self.__genre = Tag(genre)
+    def set_genre(self, genre: Genre):
+        self.__tags.remove(self.__genre.get_name())
+        self.__genre= genre
+        self.__tags.add(self.__genre.get_name())
 
     def get_url(self):
         return self.__url
@@ -337,7 +342,61 @@ class Artist(ComparableValue):
     def __ge__(self, other: 'Artist') -> bool:
         return self.__name >= other.get_name()
     
+ 
+#-------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #Genre loader
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+
+class Genre(ComparableValue):
+    def __init__(self, name: str):
+        self.__name = name
+        self.__songs = LinkedList[Song]()
+        
+    def get_name(self) -> str:
+        return self.__name
     
+    def get_songs(self) -> LinkedList[Song]:
+        return self.__songs
+    
+    def number_songs(self) -> int:
+        return self.__songs.size()
+    
+    def add_song(self, song: Song):
+        if self.__songs.contains(song): 
+            raise AttributeError("Song already here")
+        else:
+            self.__songs.append(song)
+        
+    def remove_song(self, song:Song):
+        if not self.__songs.contains(song):
+            raise AttributeError("Song not present")
+        else:
+            self.__songs.remove_by_value(song)
+    
+    def __lt__(self, other: 'Genre') -> bool:
+        return self.__name < other.get_name()
+
+    def __gt__(self, other: 'Genre') -> bool:
+        return self.__name > other.get_name()
+
+    def __eq__(self, other: 'Genre') -> bool:
+        return self.__name == other.get_name()
+
+    def __le__(self, other: 'Genre') -> bool:
+        return self.__name <= other.get_name()
+
+    def __ge__(self, other: 'Genre') -> bool:
+        return self.__name >= other.get_name()
+
 #-------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
@@ -363,3 +422,30 @@ def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
             aux_songs.append(song)
 
     return aux_songs    
+
+#-------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #Filter Genres by the one (or group of) with most songs
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+#-------------------------------------------------------------------------------------------------------------------#
+
+def genre_with_most_songs(genres: LinkedList[Genre]) -> LinkedList[Genre]:
+    aux_genres = LinkedList[Genre]()
+    max_size = 0
+    for genre in genres:
+        genre_song_size = genre.number_songs()
+        if  genre_song_size >= max_size:
+            if genre_song_size > max_size:
+                max_size = genre_song_size
+                aux_genres.clear()
+            aux_genres.append(genre)
+            
+    return aux_genres
+

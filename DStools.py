@@ -136,21 +136,21 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
                             break
 
                     if aux_artist.get_name() == "":
-                        if aux_album.name == "":
-                            if aux_genre.get_name() == "":
-                                song = Song(aux.get(1), "code_generator", aux_album,
-                                            aux_artist, aux.get(3), int(aux.get(4)),
-                                            aux_genre, aux.get(6))
-                                try:
-                                    aux_artist.add_song(song)
-                                    aux_genre.add_song(song)
-                                    songs.append(song)
-                                except AttributeError:
-                                    print("Song already exists")
-                            else:
-                                print("Genre not found")
+                        if aux_genre.name == "":
+                            if aux_album.name == "":
+                                aux_album = Album(aux.get(2), aux.get(3))
+
+                            song = Song(aux.get(1), "code_generator", aux_album,
+                                        aux_artist, aux.get(3), int(aux.get(4)),
+                                        aux_genre, aux.get(6))
+                            try:
+                                aux_artist.add_song(song)
+                                aux_genre.add_song(song)
+                                songs.append(song)
+                            except AttributeError:
+                                print("Song already exists")
                         else:
-                            print("Album not found")
+                            print("Genre not found")
                     else:
                         print("Artist not found")
     except FileNotFoundError:

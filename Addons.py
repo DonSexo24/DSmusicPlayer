@@ -1,7 +1,7 @@
 import os
 
 from DSnest import ComparableValue, LinkedList, DoubleLinkedList, BinaryTree
-from DStools import retrieve_audio, retrieve_image
+
 
 #-------------------------------------------------------------------------------------------------------------------#
 
@@ -20,7 +20,7 @@ class Cover:
     def __init__(self, code: str, url, path: str):
         self.__id = code
         self.__url = url
-        self.__img = retrieve_image(code, url, path)
+        self.__img = None #retrieve_image(code, url, path)
 
 #-------------------------------------------------------------------------------------------------------------------#
 
@@ -123,7 +123,7 @@ class Tag(ComparableValue):
 
 class Song(ComparableValue):
 
-    def __init__(self, name: str, code: str, album: Album, artist, year: str, duration: int,
+    def __init__(self, name: str, code: str, album: Album, artist: 'Artist', year: str, duration: int,
                  genre: 'Genre', url: str):
 
         self.__name = name
@@ -264,7 +264,6 @@ class Song(ComparableValue):
 
 
 class Artist(ComparableValue):
-
 
     def __init__(self, code: str, name: str, country: str, is_group: bool):
         self.__code = code
@@ -442,7 +441,7 @@ def genre_with_most_songs(genres: LinkedList[Genre]) -> LinkedList[Genre]:
     max_size = 0
     for genre in genres:
         genre_song_size = genre.number_songs()
-        if  genre_song_size >= max_size:
+        if genre_song_size >= max_size:
             if genre_song_size > max_size:
                 max_size = genre_song_size
                 aux_genres.clear()

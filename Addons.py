@@ -1,7 +1,7 @@
 import os
 
 from DSnest import ComparableValue, LinkedList, DoubleLinkedList, BinaryTree
-Ffrom DStools import retrieve_audio, retrieve_image
+from DStools import retrieve_audio, retrieve_image
 
 #-------------------------------------------------------------------------------------------------------------------#
 
@@ -201,7 +201,8 @@ class Song(ComparableValue):
     def get_cover(self):
         return self.__cover
 
-    def set_cover(self, code: str):#self.__cover = Cover(self.__url, code, 'path_to_save_cover')
+    def set_cover(self, code: str):
+        self.__cover = None # Cover(self.__url, code, 'path_to_save_cover')
 
     def get_all_tags(self) -> []:
         return self.__tags.in_order_traversal()

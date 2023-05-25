@@ -1,10 +1,52 @@
-from DSnest import HashMap
+import copy
+
+from Addons import Song
+from DSnest import HashMap, CircularList
+from DStools import UndoRedoManager
 
 
 class User:
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.__song_list = CircularList()
+        self.__undo_redo_manager = UndoRedoManager()
+
+    def get_song_list(self):
+        return self.__song_list
+
+    def set_song_list(self, song_list: CircularList[Song]):
+        self.__song_list = song_list
+
+    def add_song(self, song: Song):
+        if self.__song_list.contains(song):
+            raise AttributeError("This song is already here")
+        else:
+            self.__undo_redo_manager.push_state(copy.deepcopy(self.__song_list))
+            self.__song_list.append(song)
+
+    def delete_song(self, song: Song):
+        if not self.__song_list.contains(song):
+            raise AttributeError("Can't remove song that's not already here")
+        else:
+            self.__undo_redo_manager.push_state(copy.deepcopy(self.__song_list))
+            self.__song_list.remove_value(song)
+
+    def sort_song_list(self, key):
+        self.__song_list.sort(key)
+
+    def undo(self):
+        state = self.__undo_redo_manager.undo(self.__song_list)
+        if state:
+            self.__song_list = copy.deepcopy(state)
+
+    def redo(self):
+        state = self.__undo_redo_manager.redo(self.__song_list)
+        if state:
+            self.__song_list = copy.deepcopy(state)
+
+    def contains_song(self, song: Song):
+        return self.__song_list.contains(song)
 
 
 class Users:

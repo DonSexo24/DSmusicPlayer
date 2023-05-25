@@ -1,3 +1,4 @@
+import copy
 import os.path
 import urllib
 from pytube import YouTube
@@ -7,7 +8,7 @@ import pafy
 from DSnest import Stack
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -18,7 +19,7 @@ from DSnest import Stack
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 def retrieve_audio(song_id: str, url, root_path: str) -> str:
     audio_path = os.path.join(root_path, song_id + ".mp3")
@@ -33,8 +34,10 @@ def retrieve_image(song_id: str, url, root_path: str) -> Image:
         __download_image(song_id, url, root_path)
     return Image.open(image_path)
 
+
 def __download_audio(song_id: str, video_url, root_path: str):
     print("Not supported yet")
+
 
 def __download_image(song_id: str, url, root_path: str):
     personal_path = os.path.join(root_path, song_id)
@@ -51,7 +54,7 @@ def __download_image(song_id: str, url, root_path: str):
         print(image_path.title())
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -62,29 +65,33 @@ def __download_image(song_id: str, url, root_path: str):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 class UndoRedoManager:
     def __init__(self):
-        self.undo_stack = Stack()
         self.redo_stack = Stack()
+        self.undo_stack = Stack()
 
-    def do_operation(self, operation):
-        operation()
-        self.undo_stack.append(operation)
+    def push_state(self, state):
+        self.undo_stack.push(state)
         self.redo_stack.clear()
 
-    def undo(self):
-        if not self.undo_stack:
-            return
-        operation = self.undo_stack.pop()
-        operation.undo()
-        self.redo_stack.append(operation)
+    def undo(self, current):
+        if not self.undo_stack.is_empty():
+            print(self.undo_stack.size(), self.redo_stack.size())
+            state = self.undo_stack.poll()
+            self.redo_stack.push(copy.deepcopy(current))
+            print(self.undo_stack.size(), self.redo_stack.size())
+            return copy.deepcopy(state)
+        else:
+            return None
 
-    def redo(self):
-        if not self.redo_stack:
-            return
-        operation = self.redo_stack.pop()
-        operation()
-        self.undo_stack.append(operation)
-
+    def redo(self, current):
+        if self.redo_stack.is_empty:
+            print(self.undo_stack.size(), self.redo_stack.size())
+            state = self.redo_stack.poll()
+            self.undo_stack.push(copy.deepcopy(current))
+            print(self.undo_stack.size(), self.redo_stack.size())
+            return copy.deepcopy(state)
+        else:
+            return None

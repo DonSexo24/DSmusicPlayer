@@ -1,8 +1,7 @@
 import os
 
 from DSnest import ComparableValue, LinkedList, DoubleLinkedList, BinaryTree
-from DStools import retrieve_audio,retrieve_image
-
+Ffrom DStools import retrieve_audio, retrieve_image
 
 #-------------------------------------------------------------------------------------------------------------------#
 
@@ -125,7 +124,7 @@ class Tag(ComparableValue):
 class Song(ComparableValue):
 
     def __init__(self, name: str, code: str, album: Album, artist, year: str, duration: int,
-                 genre: Genre, url: str):
+                 genre: 'Genre', url: str):
 
         self.__name = name
         self.__id = code
@@ -137,11 +136,11 @@ class Song(ComparableValue):
         self.__url = url
 
         path = os.path.join(os.path.join(os.getcwd(), "Model"), "Files")
-
+        self.__cover = None
         # self.__cover = Cover(code, self.__url, path)
         # self.__audio = retrieve_audio(code, self.__url, path)
         self.__tags = BinaryTree[Tag]()
-        self.__tags.add(self.__genre.get_name())
+        self.__tags.add(Tag(self.__genre.get_name()))
         self.__tags.add(Tag(self.__artist.get_name()))
         self.__tags.add(Tag(album.name))
         self.__tags.balance()
@@ -188,10 +187,10 @@ class Song(ComparableValue):
     def get_genre_name(self):
         return self.__genre.get_name()
 
-    def set_genre(self, genre: Genre):
-        self.__tags.remove(self.__genre.get_name())
-        self.__genre= genre
-        self.__tags.add(self.__genre.get_name())
+    def set_genre(self, genre: 'Genre'):
+        self.__tags.remove(Tag(self.__genre.get_name()))
+        self.__genre = genre
+        self.__tags.add(Tag(self.__genre.get_name()))
 
     def get_url(self):
         return self.__url
@@ -202,8 +201,7 @@ class Song(ComparableValue):
     def get_cover(self):
         return self.__cover
 
-    def set_cover(self, code: str):
-        self.__cover = Cover(self.__url, code)
+    def set_cover(self, code: str):#self.__cover = Cover(self.__url, code, 'path_to_save_cover')
 
     def get_all_tags(self) -> []:
         return self.__tags.in_order_traversal()
@@ -341,8 +339,8 @@ class Artist(ComparableValue):
 
     def __ge__(self, other: 'Artist') -> bool:
         return self.__name >= other.get_name()
-    
- 
+
+
 #-------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
@@ -356,32 +354,34 @@ class Artist(ComparableValue):
 
 #-------------------------------------------------------------------------------------------------------------------#
 
+
 class Genre(ComparableValue):
+
     def __init__(self, name: str):
         self.__name = name
         self.__songs = LinkedList[Song]()
-        
+
     def get_name(self) -> str:
         return self.__name
-    
+
     def get_songs(self) -> LinkedList[Song]:
         return self.__songs
-    
+
     def number_songs(self) -> int:
         return self.__songs.size()
-    
+
     def add_song(self, song: Song):
-        if self.__songs.contains(song): 
+        if self.__songs.contains(song):
             raise AttributeError("Song already here")
         else:
             self.__songs.append(song)
-        
+
     def remove_song(self, song:Song):
         if not self.__songs.contains(song):
             raise AttributeError("Song not present")
         else:
             self.__songs.remove_by_value(song)
-    
+
     def __lt__(self, other: 'Genre') -> bool:
         return self.__name < other.get_name()
 

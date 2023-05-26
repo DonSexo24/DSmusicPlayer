@@ -8,6 +8,8 @@ class Factory:
         self.__artist = BinaryTree[Artist]()
         self.__songs = LinkedList[Song]()
         self.__users = HashMap[str, User]()
+        self.__users.put_in("admin", User("admin", "$aDmiN", True))
+        self.__users.put_in("test", User("test", "1234"))
         self.__genres = LinkedList[Genre]()
 
     def add_song(self, song: Song):

@@ -116,7 +116,10 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
 
                 if aux.size() == 4:
                     try:
-                        artists.add(Artist(aux.get(0), aux.get(1), aux.get(2), aux.get(3)))
+                        artists.add(Artist(str(aux.get(0)).upper(),
+                                           str(aux.get(1)).upper(),
+                                           str(aux.get(2)).upper(),
+                                           aux.get(3)))
                     except AttributeError:
                         print("Artist already exists")
 
@@ -126,7 +129,7 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
                     aux_genre = Genre("")
 
                     for artist in artists.in_order_traversal():
-                        if artist.get_name() == aux.get(0):
+                        if artist.get_name() == str(aux.get(0)).upper():
                             aux_artist = artist
                             break
 

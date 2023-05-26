@@ -1,15 +1,31 @@
+import pickle
 import tkinter as tk
 from tkinter import messagebox
 
 from DSFactory import Factory
 from Users import User
 
-factory = Factory()
-
 
 # Function to handle the login process
 def load_Factory():
-    return Factory()  # Lectura de factory serializado
+    try:
+        with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "rb") as archivo:
+            return pickle.load(archivo)
+    except FileNotFoundError:
+        print("El archivo no se encuentra.")
+        return Factory()
+    except pickle.UnpicklingError:
+        print("Error al deserializar el objeto.")
+        return Factory()  # Lectura de factory serializado
+
+
+factory = load_Factory()
+
+
+def save_Factory():
+    factory_aux = pickle.dumps(factory)
+    with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "wb") as archivo:
+        archivo.write(factory_aux)
 
 
 def login():
@@ -44,6 +60,7 @@ def register():
     else:
         # Add the new user to the HashMap
         factory.add_user(User(username, password))
+        save_Factory()
         messagebox.showinfo("Success", "Registration successful!")
 
 

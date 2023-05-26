@@ -6,18 +6,12 @@ from DStools import UndoRedoManager
 
 
 class User(ComparableValue):
-    def __init__(self, username, password):
+    def __init__(self, username, password, is_admin=False):
         self.username = username
         self.password = password
-        self.is_admin = False
+        self.is_admin = is_admin
         self.__song_list = CircularList()
         self.__undo_redo_manager = UndoRedoManager()
-
-    def __verify_admin(self):
-        if self.username == 'admin' and self.password == '$aDmiN':
-            return True
-        else:
-            return False
 
     def get_song_list(self):
         return self.__song_list

@@ -1,6 +1,7 @@
 import copy
 import os.path
 import urllib
+import pygame
 from pytube import YouTube
 
 from Addons import Artist, Song, Genre, Album
@@ -27,14 +28,10 @@ def retrieve_audio(song_id: str, url, root_path: str) -> str:
     return audio_path
 
 
-"""
 def retrieve_image(song_id: str, url, root_path: str) -> Image:
     image_path = os.path.join(os.path.join(root_path, song_id), song_id + ".jpg")
     if not os.path.exists(image_path):
         __download_image(song_id, url, root_path)
-    return Image.open(image_path)
-
-"""
 
 
 def __download_audio(song_id: str, video_url, root_path: str):
@@ -98,6 +95,19 @@ class UndoRedoManager:
         else:
             return None
 
+# -------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #File reader
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+# -------------------------------------------------------------------------------------------------------------------#
+
 
 def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], genres: LinkedList[Genre],
                        path_to_file: str):
@@ -156,3 +166,42 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
     except FileNotFoundError:
         print("File not found")
 
+# -------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #Audio Player
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+# -------------------------------------------------------------------------------------------------------------------#
+
+class AudioPlayer:
+    def __init__(self, ruta_archivo):
+        pygame.mixer.init()
+        self.ruta_archivo = ruta_archivo
+        self.paused = False
+        self.playing = False
+
+    def toggle_playback(self):
+        if not self.playing:
+            pygame.mixer.music.load(self.ruta_archivo)
+            pygame.mixer.music.play()
+            self.playing = True
+            self.paused = False
+        elif self.paused:
+            pygame.mixer.music.unpause()
+            self.paused = False
+        else:
+            pygame.mixer.music.pause()
+            self.paused = True
+
+    def play_from_timestamp(self, timestamp):
+        if not self.playing:
+            pygame.mixer.music.load(self.ruta_archivo)
+        pygame.mixer.music.play(start=timestamp)
+        self.playing = True
+        self.paused = False

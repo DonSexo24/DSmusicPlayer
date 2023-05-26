@@ -6,101 +6,106 @@ from DSFactory import Factory
 from Users import User
 
 
-# Function to handle the login process
-def load_Factory():
-    try:
-        with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "rb") as archivo:
-            return pickle.load(archivo)
-    except FileNotFoundError:
-        print("El archivo no se encuentra.")
-        return Factory()
-    except pickle.UnpicklingError:
-        print("Error al deserializar el objeto.")
-        return Factory()  # Lectura de factory serializado
+class LoginView:
 
+    def __init__(self):
+        self.factory = Factory()
+        self.load_Factory()
+        # Create the login window
+        self.window = tk.Tk()
+        self.window.title("Login")
 
-factory = load_Factory()
+        # Username label and entry field
+        self.username_label = tk.Label(self.window, text="Username:")
+        self.username_label.pack()
+        self.username_entry = tk.Entry(self.window)
+        self.username_entry.pack(fill=tk.X, padx=10, pady=5)
 
+        # Password label and entry field
+        self.password_label = tk.Label(self.window, text="Password:")
+        self.password_label.pack()
+        self.password_entry = tk.Entry(self.window, show="*")
+        self.password_entry.pack(fill=tk.X, padx=10, pady=5)
 
-def save_Factory():
-    factory_aux = pickle.dumps(factory)
-    with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "wb") as archivo:
-        archivo.write(factory_aux)
+        # Login button
+        self.login_button = tk.Button(self.window, text="Login", command=self.login)
+        self.login_button.pack(fill=tk.X, padx=10, pady=5)
 
+        # Register button
+        self.register_button = tk.Button(self.window, text="Register", command=self.register)
+        self.register_button.pack(fill=tk.X, padx=10, pady=5)
 
-def login():
-    username = username_entry.get()
-    password = password_entry.get()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-    # Check if the username exists in the HashMap
-    if factory.contains_user(username):
-        # Retrieve the user object associated with the username
-        user = factory.get_user(username)
+        # Update window to calculate its size
+        self.window.update_idletasks()
 
-        # Check if the entered password matches the stored password
-        if password == user.password:
-            if user.is_admin:
-                messagebox.showinfo("Success", "Admin login successful!")
+        # Calculate the center position of the screen
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        window_width = self.window.winfo_width()
+        window_height = self.window.winfo_height()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+
+        # Set the window position
+        self.window.geometry(f"+{x}+{y}")
+
+        # Start the main window loop
+        self.window.mainloop()
+
+    # Function to handle the login process
+    def load_Factory(self):
+        try:
+            with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "rb") as archivo:
+                self.factory = pickle.load(archivo)
+        except FileNotFoundError:
+            print("El archivo no se encuentra.")
+            self.save_Factory()
+        except pickle.UnpicklingError:
+            print("Error al deserializar el objeto.")
+            self.save_Factory()
+
+    def save_Factory(self):
+        factory_aux = pickle.dumps(self.factory)
+        with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "wb") as archivo:
+            archivo.write(factory_aux)
+
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        # Check if the username exists in the HashMap
+        if self.factory.contains_user(username):
+            # Retrieve the user object associated with the username
+            user = self.factory.get_user(username)
+
+            # Check if the entered password matches the stored password
+            if password == user.password:
+                if user.is_admin:
+                    messagebox.showinfo("Success", "Admin login successful!")
+                else:
+                    messagebox.showinfo("Success", "User login successful!")
             else:
-                messagebox.showinfo("Success", "User login successful!")
+                messagebox.showerror("Error", "Invalid password!")
         else:
-            messagebox.showerror("Error", "Invalid password!")
-    else:
-        messagebox.showerror("Error", "Invalid username!")
+            messagebox.showerror("Error", "Invalid username!")
 
+    # Function to handle the registration process
+    def register(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
 
-# Function to handle the registration process
-def register():
-    username = username_entry.get()
-    password = password_entry.get()
+        # Check if the username is already taken
+        if self.factory.contains_user(username):
+            messagebox.showerror("Error", "Username already taken!")
+        else:
+            # Add the new user to the HashMap
+            self.factory.add_user(User(username, password))
+            self.save_Factory()
+            messagebox.showinfo("Success", "Registration successful!")
 
-    # Check if the username is already taken
-    if factory.contains_user(username):
-        messagebox.showerror("Error", "Username already taken!")
-    else:
-        # Add the new user to the HashMap
-        factory.add_user(User(username, password))
-        save_Factory()
-        messagebox.showinfo("Success", "Registration successful!")
-
-
-# Create the login window
-window = tk.Tk()
-window.title("Login")
-
-# Username label and entry field
-username_label = tk.Label(window, text="Username:")
-username_label.pack()
-username_entry = tk.Entry(window)
-username_entry.pack(fill=tk.X, padx=10, pady=5)
-
-# Password label and entry field
-password_label = tk.Label(window, text="Password:")
-password_label.pack()
-password_entry = tk.Entry(window, show="*")
-password_entry.pack(fill=tk.X, padx=10, pady=5)
-
-# Login button
-login_button = tk.Button(window, text="Login", command=login)
-login_button.pack(fill=tk.X, padx=10, pady=5)
-
-# Register button
-register_button = tk.Button(window, text="Register", command=register)
-register_button.pack(fill=tk.X, padx=10, pady=5)
-
-# Update window to calculate its size
-window.update_idletasks()
-
-# Calculate the center position of the screen
-screen_width = window.winfo_screenwidth()
-screen_height = window.winfo_screenheight()
-window_width = window.winfo_width()
-window_height = window.winfo_height()
-x = (screen_width // 2) - (window_width // 2)
-y = (screen_height // 2) - (window_height // 2)
-
-# Set the window position
-window.geometry(f"+{x}+{y}")
-
-# Start the main window loop
-window.mainloop()
+    def on_closing(self):
+        if messagebox.askokcancel("Quit", "would you like to quit"):
+            self.save_Factory()
+            self.window.destroy()

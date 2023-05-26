@@ -770,7 +770,7 @@ class HashMap(Generic[K, T]):
             node = node.next
         return None
 
-    def remove(self, key):
+    def remove(self, key: K):
         index = self.hash_of(key)
         prev_node = None
         node = self.table[index]
@@ -786,8 +786,12 @@ class HashMap(Generic[K, T]):
             node = node.next
         return None
 
-    def hash_of(self, key):
-        return hash(key) % self.capacity
+    def hash_of(self, key: K):
+        if isinstance(key, str):
+            # Implement a custom hash function for 'str' keys
+            return sum(ord(c) for c in key) % self.capacity
+        else:
+            return hash(key) % self.capacity
 
     def resize(self):
         new_capacity = self.capacity * 2

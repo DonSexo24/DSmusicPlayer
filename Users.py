@@ -1,16 +1,23 @@
 import copy
 
 from Addons import Song
-from DSnest import HashMap, CircularList
+from DSnest import HashMap, CircularList, ComparableValue
 from DStools import UndoRedoManager
 
 
-class User:
+class User(ComparableValue):
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.is_admin = False
         self.__song_list = CircularList()
         self.__undo_redo_manager = UndoRedoManager()
+
+    def __verify_admin(self):
+        if self.username == 'admin' and self.password == '$aDmiN':
+            return True
+        else:
+            return False
 
     def get_song_list(self):
         return self.__song_list
@@ -47,6 +54,21 @@ class User:
 
     def contains_song(self, song: Song):
         return self.__song_list.contains(song)
+
+    def __lt__(self, other: 'User') -> bool:
+        return self.username < other.username
+
+    def __gt__(self, other: 'User') -> bool:
+        return self.username > other.username
+
+    def __eq__(self, other: 'User') -> bool:
+        return self.username == other.username
+
+    def __le__(self, other: 'User') -> bool:
+        return self.username <= other.username
+
+    def __ge__(self, other: 'User') -> bool:
+        return self.username >= other.username
 
 
 class Users:

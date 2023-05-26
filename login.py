@@ -1,22 +1,32 @@
 import tkinter as tk
 from tkinter import messagebox
-from Users import Users, User
+
+from DSFactory import Factory
+from Users import User
+
+factory = Factory()
 
 
 # Function to handle the login process
+def load_Factory():
+    return Factory()  # Lectura de factory serializado
+
+
 def login():
     username = username_entry.get()
     password = password_entry.get()
-    user_manager = Users("users.txt")
 
     # Check if the username exists in the HashMap
-    if user_manager.contains(username):
+    if factory.contains_user(username):
         # Retrieve the user object associated with the username
-        user = user_manager.get(username)
+        user = factory.get_user(username)
 
         # Check if the entered password matches the stored password
         if password == user.password:
-            messagebox.showinfo("Success", "Login successful!")
+            if user.is_admin:
+                messagebox.showinfo("Success", "Admin login successful!")
+            else:
+                messagebox.showinfo("Success", "User login successful!")
         else:
             messagebox.showerror("Error", "Invalid password!")
     else:
@@ -28,18 +38,12 @@ def register():
     username = username_entry.get()
     password = password_entry.get()
 
-    # Create an instance of the Users class
-    user_manager = Users("users.txt")
-
     # Check if the username is already taken
-    if user_manager.contains(username):
+    if factory.contains_user(username):
         messagebox.showerror("Error", "Username already taken!")
     else:
-        # Create a new User object
-        new_user = User(username, password)
-
         # Add the new user to the HashMap
-        user_manager.put(username, new_user)
+        factory.add_user(User(username, password))
         messagebox.showinfo("Success", "Registration successful!")
 
 

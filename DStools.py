@@ -28,12 +28,6 @@ def retrieve_audio(song_id: str, url, root_path: str) -> str:
     return audio_path
 
 
-def retrieve_image(song_id: str, url, root_path: str) -> Image:
-    image_path = os.path.join(os.path.join(root_path, song_id), song_id + ".jpg")
-    if not os.path.exists(image_path):
-        __download_image(song_id, url, root_path)
-
-
 def __download_audio(song_id: str, video_url, root_path: str):
     print("Not supported yet")
 
@@ -94,6 +88,7 @@ class UndoRedoManager:
             return copy.deepcopy(state)
         else:
             return None
+
 
 # -------------------------------------------------------------------------------------------------------------------#
 
@@ -165,6 +160,7 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
                         print("Artist not found")
     except FileNotFoundError:
         print("File not found")
+
 
 # -------------------------------------------------------------------------------------------------------------------#
 

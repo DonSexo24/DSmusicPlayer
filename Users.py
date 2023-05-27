@@ -13,7 +13,7 @@ class User(ComparableValue):
         self.__song_list = CircularList()
         self.__undo_redo_manager = UndoRedoManager()
 
-    def get_song_list(self):
+    def get_song_list(self) -> CircularList[Song]:
         return self.__song_list
 
     def set_song_list(self, song_list: CircularList[Song]):

@@ -408,7 +408,7 @@ class CircularList(Generic[T]):
         self.__sorted = False
         self.__sorted_by = None
 
-    def get(self, index: int):
+    def get(self, index: int) -> T:
         if index < 0 or index >= self.__size:
             raise IndexError("Index out of range")
         current = self.__head

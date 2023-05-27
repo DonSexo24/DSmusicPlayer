@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 from DSFactory import Factory
 from Users import User
+from player import HomePlayer
 
 
 class LoginView:
@@ -19,21 +20,21 @@ class LoginView:
         self.username_label = tk.Label(self.window, text="Username:")
         self.username_label.pack()
         self.username_entry = tk.Entry(self.window)
-        self.username_entry.pack(fill=tk.X, padx=10, pady=5)
+        self.username_entry.pack(fill=tk.X, padx=20, pady=10)
 
         # Password label and entry field
         self.password_label = tk.Label(self.window, text="Password:")
         self.password_label.pack()
         self.password_entry = tk.Entry(self.window, show="*")
-        self.password_entry.pack(fill=tk.X, padx=10, pady=5)
+        self.password_entry.pack(fill=tk.X, padx=20, pady=10)
 
         # Login button
         self.login_button = tk.Button(self.window, text="Login", command=self.login)
-        self.login_button.pack(fill=tk.X, padx=10, pady=5)
+        self.login_button.pack(fill=tk.X, padx=20, pady=10)
 
         # Register button
         self.register_button = tk.Button(self.window, text="Register", command=self.register)
-        self.register_button.pack(fill=tk.X, padx=10, pady=5)
+        self.register_button.pack(fill=tk.X, padx=20, pady=10)
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -84,8 +85,11 @@ class LoginView:
             if password == user.password:
                 if user.is_admin:
                     messagebox.showinfo("Success", "Admin login successful!")
+                    self.window.destroy()
                 else:
                     messagebox.showinfo("Success", "User login successful!")
+                    self.window.destroy()
+                    user_home = HomePlayer(factory=self.factory, user=user)
             else:
                 messagebox.showerror("Error", "Invalid password!")
         else:

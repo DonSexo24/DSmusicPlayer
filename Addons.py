@@ -1,28 +1,12 @@
 import os
+import urllib
 
+from pytube import YouTube
+import youtube_dl
 from DSnest import ComparableValue, LinkedList, DoubleLinkedList, BinaryTree
 
 
-#-------------------------------------------------------------------------------------------------------------------#
-
-#        .--.
-#       |o_o |
-#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
-#      //   \ \
-#     (|     | )                                  #Cover loader
-#    /'\_   _/`\
-#    \___)=(___/
-
-
-#-------------------------------------------------------------------------------------------------------------------#
-
-class Cover:
-    def __init__(self, code: str, url, path: str):
-        self.__id = code
-        self.__url = url
-        self.__img = None #retrieve_image(code, url, path)
-
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -33,7 +17,7 @@ class Cover:
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 class Album(ComparableValue):
     def __init__(self, name: str, year: str):
         self.name = name
@@ -55,7 +39,7 @@ class Album(ComparableValue):
         return self.name >= other.name
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -66,7 +50,7 @@ class Album(ComparableValue):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 class Tag(ComparableValue):
     def __init__(self, attribute: str):
@@ -107,7 +91,8 @@ class Tag(ComparableValue):
 
         return False
 
-#-------------------------------------------------------------------------------------------------------------------#
+
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -118,7 +103,7 @@ class Tag(ComparableValue):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 
 class Song(ComparableValue):
@@ -134,11 +119,6 @@ class Song(ComparableValue):
         self.__duration = duration
         self.__genre = genre
         self.__url = url
-
-        path = os.path.join(os.path.join(os.getcwd(), "Model"), "Files")
-        self.__cover = None
-        # self.__cover = Cover(code, self.__url, path)
-        # self.__audio = retrieve_audio(code, self.__url, path)
         self.__tags = BinaryTree[Tag]()
         self.__tags.add(Tag(self.__genre.get_name()))
         self.__tags.add(Tag(self.__artist.get_name()))
@@ -183,7 +163,7 @@ class Song(ComparableValue):
 
     def get_genre(self):
         return self.__genre
-    
+
     def get_genre_name(self):
         return self.__genre.get_name()
 
@@ -198,11 +178,13 @@ class Song(ComparableValue):
     def set_url(self, url):
         self.__url = url
 
-    def get_cover(self):
-        return self.__cover
+    def get_cover_path(self):
+        path = os.path.join(os.getcwd(), "Files")
+        return retrieve_image_path(self.__id, self.__url, path)
 
-    def set_cover(self, code: str):
-        self.__cover = None # Cover(self.__url, code, 'path_to_save_cover')
+    def get_audio_path(self):
+        path = os.path.join(os.getcwd(), "Files")
+        return retrieve_audio_path(self.__id, self.__url, path)
 
     def get_all_tags(self) -> []:
         return self.__tags.in_order_traversal()
@@ -249,7 +231,7 @@ class Song(ComparableValue):
         return self.__id >= other.get_id()
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -260,7 +242,7 @@ class Song(ComparableValue):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 
 class Artist(ComparableValue):
@@ -341,7 +323,7 @@ class Artist(ComparableValue):
         return self.__name >= other.get_name()
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -352,7 +334,7 @@ class Artist(ComparableValue):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 
 class Genre(ComparableValue):
@@ -376,7 +358,7 @@ class Genre(ComparableValue):
         else:
             self.__songs.append(song)
 
-    def remove_song(self, song:Song):
+    def remove_song(self, song: Song):
         if not self.__songs.contains(song):
             raise AttributeError("Song not present")
         else:
@@ -397,7 +379,8 @@ class Genre(ComparableValue):
     def __ge__(self, other: 'Genre') -> bool:
         return self.__name >= other.get_name()
 
-#-------------------------------------------------------------------------------------------------------------------#
+
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -408,9 +391,9 @@ class Genre(ComparableValue):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#    
+# -------------------------------------------------------------------------------------------------------------------#
 
-    
+
 def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
     aux_songs = LinkedList[Song]()
     for song in songs:
@@ -421,9 +404,10 @@ def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
         if flag.__eq__(True):
             aux_songs.append(song)
 
-    return aux_songs    
+    return aux_songs
 
-#-------------------------------------------------------------------------------------------------------------------#
+
+# -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
 #       |o_o |
@@ -434,7 +418,7 @@ def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
 #    \___)=(___/
 
 
-#-------------------------------------------------------------------------------------------------------------------#
+# -------------------------------------------------------------------------------------------------------------------#
 
 def genre_with_most_songs(genres: LinkedList[Genre]) -> LinkedList[Genre]:
     aux_genres = LinkedList[Genre]()
@@ -446,6 +430,75 @@ def genre_with_most_songs(genres: LinkedList[Genre]) -> LinkedList[Genre]:
                 max_size = genre_song_size
                 aux_genres.clear()
             aux_genres.append(genre)
-            
+
     return aux_genres
 
+
+# -------------------------------------------------------------------------------------------------------------------#
+
+#        .--.
+#       |o_o |
+#       |:_/ |                                    #created by Juan Samuel Arbelaez & Juan Esteban Astaiza
+#      //   \ \
+#     (|     | )                                  #Audio & Image format retrieving
+#    /'\_   _/`\
+#    \___)=(___/
+
+
+# -------------------------------------------------------------------------------------------------------------------#
+
+def retrieve_audio_path(song_id: str, url, root_path: str) -> str:
+    folder_path = os.path.join(root_path, song_id)
+    audio_path = os.path.join(folder_path, song_id + ".mp3")
+    if not os.path.exists(audio_path):
+        if not os.path.exists(folder_path):
+            os.mkdir(folder_path)
+        __download_audio(song_id, url, folder_path)
+    return audio_path
+
+
+def retrieve_image_path(song_id: str, url: str, root_path: str) -> str:
+    folder_path = os.path.join(root_path, song_id)
+    image_path = os.path.join(folder_path, song_id + ".jpg")
+    if not os.path.exists(image_path):
+        if not os.path.exists(folder_path):
+            os.mkdir(folder_path)
+        __download_image(song_id, url, folder_path)
+    return image_path
+
+
+"""
+def __download_audio(song_id: str, url, folder_path: str):
+    audio_path = os.path.join(folder_path, song_id + ".mp3")
+    youtube_stream = YouTube(str(url))
+    video = youtube_stream.streams.filter(only_audio=True).first()
+    out_file = video.download(output_path=folder_path)
+    os.rename(out_file, audio_path)
+    print(audio_path.title(), "downloaded at", folder_path.title())
+    
+"""
+
+
+def __download_audio(song_id: str, url, folder_path: str):
+    audio_path = os.path.join(folder_path, song_id + ".mp3")
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': audio_path,
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+    print(audio_path.title(), "downloaded at", folder_path.title())
+
+
+def __download_image(song_id: str, url, folder_path: str):
+    image_path = os.path.join(folder_path, song_id + ".jpg")
+    youtube_stream = YouTube(str(url))
+    image_url = youtube_stream.thumbnail_url
+    urllib.request.urlretrieve(image_url, image_path)
+    print(image_path.title(), "downloaded at", folder_path.title())

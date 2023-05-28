@@ -847,6 +847,9 @@ class LinkedList(Generic[T]):
     def size(self):
         return self._size
 
+    def is_empty(self):
+        return self.size() == 0
+
     def sorted(self):
         return self._sorted
 

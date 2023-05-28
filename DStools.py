@@ -7,8 +7,6 @@ from Addons import Artist, Song, Genre, Album
 from DSnest import Stack, LinkedList, BinaryTree
 
 
-
-
 # -------------------------------------------------------------------------------------------------------------------#
 
 #        .--.
@@ -21,7 +19,6 @@ from DSnest import Stack, LinkedList, BinaryTree
 
 
 # -------------------------------------------------------------------------------------------------------------------#
-
 class UndoRedoManager:
     def __init__(self):
         self.redo_stack = Stack()
@@ -125,5 +122,3 @@ def add_data_from_file(songs: LinkedList[Song], artists: BinaryTree[Artist], gen
                         print("Artist not found")
     except FileNotFoundError:
         print("File not found")
-
-

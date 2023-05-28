@@ -395,13 +395,26 @@ class Genre(ComparableValue):
 # -------------------------------------------------------------------------------------------------------------------#
 
 
-def get_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
+def get_all_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
     aux_songs = LinkedList[Song]()
     for song in songs:
         flag = True
         for tag_to_evaluate in tags:
             if not song.contains_partial_tag(tag_to_evaluate):
                 flag = False
+        if flag.__eq__(True):
+            aux_songs.append(song)
+
+    return aux_songs
+
+def get_any_filtered_songs(tags: LinkedList[Tag], songs: LinkedList[Song]):
+    aux_songs = LinkedList[Song]()
+    for song in songs:
+        flag = False
+        for tag_to_evaluate in tags:
+            if song.contains_partial_tag(tag_to_evaluate):
+                flag = True
+                break
         if flag.__eq__(True):
             aux_songs.append(song)
 

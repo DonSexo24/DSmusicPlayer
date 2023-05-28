@@ -1,6 +1,6 @@
 # This is a sample Python script.
 import Addons
-from Addons import Artist, Album, Song, Genre, Tag, get_filtered_songs
+from Addons import Artist, Album, Song, Genre, Tag, get_all_filtered_songs
 from DSFactory import Factory
 from DSnest import LinkedList
 from Users import User
@@ -164,7 +164,7 @@ def set_app():
     aux_tags.append(Tag("PoP"))
     aux_tags.append(Tag("aLOr"))
 
-    for song in get_filtered_songs(aux_tags, app.get_songs()):
+    for song in get_all_filtered_songs(aux_tags, app.get_songs()):
         print(song.get_name())
     print("\n----------------------------------------------------------------")
 

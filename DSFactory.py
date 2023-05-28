@@ -147,14 +147,3 @@ class Factory:
     def add_genre(self, genre: Genre):
         self.__genres.append(genre)
 
-    def get_filtered_songs(self, tags: LinkedList[Tag], songs: LinkedList[Song]):
-        aux_songs = LinkedList[Song]()
-        for song in songs:
-            flag = True
-            for tag_to_evaluate in tags:
-                if not song.contains_partial_tag(tag_to_evaluate):
-                    flag = False
-            if flag.__eq__(True):
-                aux_songs.append(song)
-
-        return aux_songs

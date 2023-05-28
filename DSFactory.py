@@ -289,21 +289,21 @@ class Factory:
 
                     if aux_artist.get_name() == "":
                         if aux_genre.name == "":
-                            if aux_album.name == "":
-                                aux_album = Album(arguments.get(2), arguments.get(3))
+                            self.add_genre(Genre(str(arguments.get(5)).upper()))
 
-                            song = Song(arguments.get(1), "code_generator", aux_album,
-                                        aux_artist, arguments.get(3), int(arguments.get(4)),
-                                        aux_genre, arguments.get(6))
-                            try:
-                                aux_artist.add_song(song)
-                                aux_genre.add_song(song)
-                                songs.append(song)
-                                print("Song added successfully")
-                            except AttributeError:
-                                print("Song already exists")
-                        else:
-                            print("Genre not found")
+                        if aux_album.name == "":
+                            aux_album = Album(arguments.get(2), arguments.get(3))
+
+                        song = Song(arguments.get(1), self.generate_song_code(), aux_album,
+                                    aux_artist, arguments.get(3), int(arguments.get(4)),
+                                    aux_genre, arguments.get(6))
+                        try:
+                            aux_artist.add_song(song)
+                            aux_genre.add_song(song)
+                            songs.append(song)
+                            print("Song added successfully")
+                        except AttributeError:
+                            print("Song already exists")
                     else:
                         print("Artist not found")
         except FileNotFoundError:

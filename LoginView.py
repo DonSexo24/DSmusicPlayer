@@ -2,9 +2,10 @@ import pickle
 import tkinter as tk
 from tkinter import messagebox
 
+from AdminView import AdminHome
 from DSFactory import Factory
 from Users import User
-from player import HomePlayer
+from UserView import HomePlayer
 
 
 class LoginView:
@@ -86,6 +87,7 @@ class LoginView:
                 if user.is_admin:
                     messagebox.showinfo("Success", "Admin login successful!")
                     self.window.destroy()
+                    #admin_home = AdminHome(factory=self.factory)
                 else:
                     messagebox.showinfo("Success", "User login successful!")
                     self.window.destroy()

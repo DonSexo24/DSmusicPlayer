@@ -1,5 +1,6 @@
 import pickle
 import time
+import tkinter
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -44,6 +45,8 @@ class HomePlayer:
 
         self.control_bar = ControlBar(self.window, self.user.get_song_list(), self.toggle_song_in_user_list)
         self.control_bar.pack(pady=30)
+
+        self.search_bar.show_home_songs()
 
         self.window.mainloop()
 
@@ -180,7 +183,10 @@ class VerticalScrollPane(tk.Frame):
         frame_height = self.frame.winfo_reqheight()
         y_offset = max((canvas_height - frame_height) // 2, 0)
 
-        self.canvas.itemconfigure(self.frame_window, window=self.frame, anchor='nw', y=y_offset)
+        try:
+            self.canvas.itemconfigure(self.frame_window, window=self.frame, anchor='nw', y=y_offset)
+        except Exception:
+            pass
 
         self.canvas.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -198,17 +204,38 @@ class SearchBar(tk.Frame):
         self.search_button = tk.Button(self, text="Search", command=self.search)
         self.search_button.grid(row=0, column=2, padx=10, pady=2)
 
+        self.home_button = tk.Button(self, text="Home", command=self.show_home_songs)
+        self.home_button.grid(row=0, column=3, padx=10, pady=2)
+
+        self.favorites_button = tk.Button(self, text="My Favorites", command=self.show_user_songs)
+        self.favorites_button.grid(row=0, column=4, padx=10, pady=2)
+
+        self.label_text = tk.StringVar()
+        self.label = tk.Label(self, textvariable=self.label_text)
+        self.label.grid(row=1, column=0, columnspan=5, padx=10, pady=2)
+
     def search(self):
-        print('searching:', self.search_bar_entry.get())
-        keys = self.search_bar_entry.get().split(" ")
-        print(keys)
+        query = self.search_bar_entry.get()
+        keys = query.split(" ")
         tags = LinkedList[Tag]()
         for word in keys:
+            print(word)
             tags.append(Tag(word))
         if self.selected.get():
             self.home.switch_song_list(get_all_filtered_songs(tags, self.home.factory.get_songs()))
+            search_type = "AND"
         else:
             self.home.switch_song_list(get_any_filtered_songs(tags, self.home.factory.get_songs()))
+            search_type = "OR"
+        self.label_text.set(f"Results of: {query} ({search_type})")
+
+    def show_home_songs(self):
+        self.home.switch_song_list(self.home.factory.get_songs())
+        self.label_text.set("Songs in: Home")
+
+    def show_user_songs(self):
+        self.home.switch_song_list(self.home.user.get_song_list())
+        self.label_text.set("Songs in: My Favorites")
 
 
 class ControlBar(tk.Frame):
@@ -263,7 +290,6 @@ class ControlBar(tk.Frame):
         self.song_list_listener()
 
     def song_list_listener(self):
-        print(str(self.current_mix.is_empty()))
         if self.flag and not self.current_mix.is_empty():
             self.current_song = self.current_mix.get(0)
             self.length = pygame.mixer.Sound(self.current_song.get_audio_path()).get_length()
@@ -272,10 +298,12 @@ class ControlBar(tk.Frame):
             self.update_song_info()
             self.update_song_image()
             self.flag = False
+        self.check_user_song_list()
         self.after(50, self.song_list_listener)
 
     def toggle_song_in_user_list(self, song):
         self.toggle_song_callback(song)
+        self.check_user_song_list()
 
     def update_progress(self):
         if self.playing:
@@ -342,6 +370,7 @@ class ControlBar(tk.Frame):
             self.update_song_image()
             self.playing = False
             self.paused = False
+            self.toggle_playback()
         else:
             messagebox.showwarning("No Song", "No song selected.")
 
@@ -357,8 +386,17 @@ class ControlBar(tk.Frame):
             self.update_song_image()
             self.playing = False
             self.paused = False
+            self.toggle_playback()
         else:
             messagebox.showwarning("No Song", "No song selected.")
 
-
-
+    def check_user_song_list(self):
+        if self.current_mix.is_empty():
+            self.current_song = None
+            self.length = 0
+            self.progress_bar.configure(maximum=self.length)
+            self.update_progress()
+            self.update_song_info()
+            self.update_song_image()
+            self.playing = False
+            self.paused = False

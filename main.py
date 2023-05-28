@@ -4,7 +4,7 @@ from Addons import Artist, Album, Song, Genre, Tag, get_all_filtered_songs
 from DSFactory import Factory
 from DSnest import LinkedList
 from Users import User
-from login import LoginView
+from LoginView import LoginView
 
 
 # Press Mayús+F10 to execute it or replace it with your code.

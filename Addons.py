@@ -118,6 +118,7 @@ class Song(ComparableValue):
         self.__year = year
         self.__duration = duration
         self.__genre = genre
+        genre.add_song(self)
         self.__url = url
         self.__tags = BinaryTree[Tag]()
         self.__tags.add(Tag(self.__genre.get_name()))
@@ -453,7 +454,10 @@ def retrieve_audio_path(song_id: str, url, root_path: str) -> str:
     if not os.path.exists(audio_path):
         if not os.path.exists(folder_path):
             os.mkdir(folder_path)
-        __download_audio(song_id, url, folder_path)
+        try:
+            __download_audio(song_id, url, folder_path)
+        except FileNotFoundError:
+            print("Error while downloading mp3")
     return audio_path
 
 
@@ -463,7 +467,10 @@ def retrieve_image_path(song_id: str, url: str, root_path: str) -> str:
     if not os.path.exists(image_path):
         if not os.path.exists(folder_path):
             os.mkdir(folder_path)
-        __download_image(song_id, url, folder_path)
+        try:
+            __download_image(song_id, url, folder_path)
+        except FileNotFoundError:
+            print("Error while downloading img")
     return image_path
 
 

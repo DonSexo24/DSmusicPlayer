@@ -22,8 +22,11 @@ class HomePlayer:
         self.search_bar.pack(pady=5)
 
         self.song_row_scroller = VerticalScrollPane(self.window, 300, 400, )
-        for i in range(0, 5):
+        for i in range(0, 2):
             aux = HorizontalScrollPane(self.song_row_scroller, self.song_row_scroller.winfo_width()-10, 60)
+            for song in self.user.get_song_list():
+                song_box = SongDisplay(aux, song)
+                song_box.pack(side=tk.RIGHT)
             aux.pack(padx=5, pady=10)
         self.song_row_scroller.pack()
 
@@ -34,13 +37,21 @@ class HomePlayer:
 
 
 class SongDisplay(tk.Frame):
-    def __init__(self, song: Song, master):
+    def __init__(self, master, song: Song):
         super().__init__(master)
         self.song = song
         self.__open_image()
 
     def __open_image(self):
-        self.image = Image.open(self.song.get_cover_path())
+        image = Image.open(self.song.get_cover_path())
+        width, height = image.size
+        new_width = 80
+        ratio = new_width / width
+        new_height = int(height * ratio)
+
+        # Resize the image while preserving the aspect ratio
+        self.image = image.resize((new_width, new_height), Image.ANTIALIAS)
+
         self.image_label = tk.Label(self)
         self.image_label.pack()
         tk_image = ImageTk.PhotoImage(self.image)
@@ -115,17 +126,25 @@ class ControlBar(tk.Frame):
     def __init__(self, master, mix):
         super().__init__(master)
         # Initialize Widgets
-        self.play_button = tk.Button(self, text="Prev", command=self.prev_song)
-        self.play_button.grid(row=1, column=0, pady=5, padx=10)
+        self.prev_button = tk.Button(self, text="Prev", command=self.prev_song)
+        self.prev_button.grid(row=1, column=0, pady=5, padx=10)
 
         self.play_button = tk.Button(self, text="Play", command=self.toggle_playback)
         self.play_button.grid(row=1, column=1, pady=5, padx=10)
 
-        self.play_button = tk.Button(self, text="Next", command=self.next_song)
-        self.play_button.grid(row=1, column=2, pady=5, padx=10)
+        self.prev_button = tk.Button(self, text="Next", command=self.next_song)
+        self.prev_button.grid(row=1, column=2, pady=5, padx=10)
 
-        self.progress_bar = ProgressBar(self, 200, 20, 0)
+        self.progress_bar = tk.Canvas(self, width=200, height=20, bg='white', relief='sunken', bd=1)
         self.progress_bar.grid(row=0, columnspan=3, pady=5, padx=10)
+
+        self.progress = 0
+        self.length = 0
+        self.progress_bar.dragging = False
+
+        self.progress_bar.bind("<Button-1>", self.start_drag)
+        self.progress_bar.bind("<B1-Motion>", self.drag_progress)
+        self.progress_bar.bind("<ButtonRelease-1>", self.end_drag)
 
         # Initialize pygame mixer
         pygame.mixer.init()
@@ -133,10 +152,49 @@ class ControlBar(tk.Frame):
         self.current_song = None
         self.paused = False
         self.playing = False
+        self.dragging = False
+        self.aux_pos = 0
 
         # Initialize variables
         if not self.current_mix.is_empty():
             self.current_song = self.current_mix.get(0)
+            self.length = pygame.mixer.Sound(self.current_song.get_audio_path()).get_length()
+            self.update_progress()
+
+    def start_drag(self, event):
+        self.dragging = True
+        self.drag_progress(event)
+
+    def drag_progress(self, event):
+        if self.progress_bar:
+            x = event.x / self.winfo_width()
+            self.progress = max(0, min(1, x))
+            self.aux_pos = self.progress
+
+    def end_drag(self, event):
+        self.dragging = False
+        if self.playing:
+            self.play_from_timestamp(self.aux_pos)
+        width = self.winfo_width() * self.progress
+        print(width, "ancho aux")
+
+    def update_progress(self):
+        if not self.dragging:
+            self.progress = pygame.mixer.music.get_pos() / (self.length * 1000)
+        else:
+            self.progress = self.aux_pos
+        if self.playing:
+            if self.progress < 0:
+                self.progress = 0
+                self.next_song()
+            self.progress_bar.delete('progress')
+            width = self.winfo_width() * self.progress
+            print(width, "ancho")
+            self.progress_bar.create_rectangle(0, 0, width, self.winfo_height(), fill='blue', tags='progress')
+        self.after(50, self.update_progress)
+
+    def get_progress(self):
+        return self.progress
 
     def toggle_playback(self):
         if self.current_song:
@@ -146,19 +204,22 @@ class ControlBar(tk.Frame):
                 self.playing = True
                 self.paused = False
                 self.play_button.configure(text="Pause")
+                print("Playing", self.current_song.get_name())
             elif self.paused:
                 pygame.mixer.music.unpause()
                 self.paused = False
                 self.play_button.configure(text="Pause")
+                print(self.current_song.get_name(), "paused")
             else:
                 pygame.mixer.music.pause()
                 self.paused = True
                 self.play_button.configure(text="Play")
+                print("Playing", self.current_song.get_name())
 
     def play_from_timestamp(self, timestamp):
         if self.current_song:
             pygame.mixer.music.load(self.current_song.get_audio_path())
-            pygame.mixer.music.play(start=timestamp)
+            pygame.mixer.music.play(start=timestamp*self.length)
             self.playing = True
             self.paused = False
 
@@ -169,7 +230,7 @@ class ControlBar(tk.Frame):
                 self.current_song = self.current_mix.get(index + 1)
             else:
                 self.current_song = self.current_mix.get(0)
-            self.playing = True
+            self.playing = False
             self.paused = False
             self.toggle_playback()
         except IndexError:
@@ -182,7 +243,7 @@ class ControlBar(tk.Frame):
                 self.current_song = self.current_mix.get(index - 1)
             else:
                 self.current_song = self.current_mix.get(self.current_mix.size() - 1)
-            self.playing = True
+            self.playing = False
             self.paused = False
             self.toggle_playback()
         except IndexError:
@@ -191,6 +252,7 @@ class ControlBar(tk.Frame):
 
 class ProgressBar(tk.Canvas):
     def __init__(self, parent, width, height, progress=0):
+        self.aux_parent = parent
         super().__init__(parent, width=width, height=height, bg='white', relief='sunken', bd=1)
 
         self.progress = progress
@@ -214,13 +276,11 @@ class ProgressBar(tk.Canvas):
 
     def end_drag(self, event):
         self.dragging = False
-        print(self.progress)
 
     def update_progress(self):
         self.delete('progress')
         width = self.winfo_width() * self.progress
         self.create_rectangle(0, 0, width, self.winfo_height(), fill='blue', tags='progress')
-
 
     def get_progress(self):
         return self.progress

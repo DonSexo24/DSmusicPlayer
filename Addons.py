@@ -22,6 +22,25 @@ class Album(ComparableValue):
     def __init__(self, name: str, year: str):
         self.name = name
         self.year = year
+        self.songs = LinkedList[Song]()
+
+    def song_exists(self, song_code: str):
+        for song in self.songs:
+            if song.get_id() == song_code:
+                return True
+        return False
+
+    def get_song_codes(self):
+        codes = []
+        for song in self.songs:
+            codes.append(song.get_id())
+        return codes
+
+    def get_song(self, song_code: str):
+        for song in self.songs:
+            if song.get_id() == song_code:
+                return song
+
 
     def __lt__(self, other: 'Album') -> bool:
         return self.name < other.name
@@ -114,6 +133,7 @@ class Song(ComparableValue):
         self.__name = name
         self.__id = code
         self.__album = album
+        album.songs.append(self)
         self.__artist = artist
         self.__year = year
         self.__duration = duration
@@ -305,23 +325,43 @@ class Artist(ComparableValue):
     def get_albums(self) -> LinkedList[Album]:
         return self.__albums
 
+    def get_albums_names(self):
+        names = []
+        for album in self.__albums:
+            names.append(album.name)
+        return names
+
     def set_albums(self, albums: LinkedList[Album]):
         self.__albums = albums
 
+    def get_album_by_name(self, album_name: str):
+        for album in self.__albums:
+            if album.name == album_name:
+                return album
+        return None
+
+    def delete_album_by_name(self, album_name: str):
+        self.__albums.remove_by_value(Album(album_name, "NA"))
+
+    def remove_song(self, song):
+        for album in self.__albums:
+            album.songs.remove_by_value(song)
+        self.__song_list.remove_value(song)
+
     def __lt__(self, other: 'Artist') -> bool:
-        return self.__name < other.get_name()
+        return self.__code < other.get_code()
 
     def __gt__(self, other: 'Artist') -> bool:
-        return self.__name > other.get_name()
+        return self.__code > other.get_code()
 
     def __eq__(self, other: 'Artist') -> bool:
-        return self.__name == other.get_name()
+        return self.__code == other.get_code()
 
     def __le__(self, other: 'Artist') -> bool:
-        return self.__name <= other.get_name()
+        return self.__code <= other.get_code()
 
     def __ge__(self, other: 'Artist') -> bool:
-        return self.__name >= other.get_name()
+        return self.__code >= other.get_code()
 
 
 # -------------------------------------------------------------------------------------------------------------------#

@@ -1,9 +1,6 @@
 import pickle
-import time
-import tkinter
 import tkinter as tk
 from tkinter import ttk, messagebox
-
 from Addons import Song, get_all_filtered_songs, Tag, get_any_filtered_songs
 import pygame
 from PIL import Image, ImageTk
@@ -316,7 +313,7 @@ class ControlBar(tk.Frame):
 
     def update_song_info(self):
         if self.current_song:
-            song_info = f"Song: {self.current_song.get_name()} | Artist: {self.current_song.get_artist().get_name()} | Album: {self.current_song.get_album().name}"
+            song_info = f"Song: {self.current_song.get_name()} | Artist: {self.current_song.get_artists().get_name()} | Album: {self.current_song.get_album().name}"
             self.song_info_label.configure(text=song_info)
         else:
             self.song_info_label.configure(text="No song selected")

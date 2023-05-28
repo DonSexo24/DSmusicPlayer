@@ -1,3 +1,7 @@
+import random
+import string
+from typing import IO
+
 from Addons import Artist, Song, Tag, Genre, Album
 from DSnest import BinaryTree, HashMap, LinkedList
 from Users import User
@@ -5,14 +9,14 @@ from Users import User
 
 class Factory:
     def __init__(self):
-        self.__artist = BinaryTree[Artist]()
+        self.__artists = BinaryTree[Artist]()
         self.__songs = LinkedList[Song]()
         self.__users = HashMap[str, User]()
         self.__users.put_in("admin", User("admin", "$aDmiN", True))
         self.__users.put_in("test", User("test", "1234"))
         self.__genres = LinkedList[Genre]()
 
-        """
+
         user1 = User("Carla", "torta2")
         user2 = User("Tomas", "torta2")
         user3 = User("Cecilia", "torta2")
@@ -83,22 +87,22 @@ class Factory:
         self.add_user_song(user1, s1)
         self.add_user_song(user1, s4_1)
         
-        """
+
 
     def add_song(self, song: Song):
         if song is None:
             raise AttributeError("Song can't be None")
         if song.get_artist() is None:
             raise AttributeError("Artist can't be None")
-        if not self.__artist.contains(song.get_artist()):
+        if not self.__artists.contains(song.get_artist()):
             raise AttributeError("Artist not found")
         else:
             song.get_artist().add_song(song)
             self.__songs.append(song)
 
     def add_artist(self, artist: Artist):
-        self.__artist.add(artist)
-        self.__artist.balance()
+        self.__artists.add(artist)
+        self.__artists.balance()
 
     def add_user(self, user: User):
         self.__users.put_in(user.username, user)
@@ -147,3 +151,160 @@ class Factory:
     def add_genre(self, genre: Genre):
         self.__genres.append(genre)
 
+    def get_artists(self) -> BinaryTree[Artist]:
+        return self.__artists
+
+    def get_artist_by_code(self, code: str) -> Artist:
+        for artist in self.__artists.in_order_traversal():
+            if artist.get_code() == code:
+                return artist
+
+    def contains_artist(self, artist: Artist) -> bool:
+        return self.__artists.contains(artist)
+
+    def get_artist_codes(self) -> LinkedList[str]:
+        codes = LinkedList[str]()
+        for artist in self.__artists.in_order_traversal():
+            codes.append(artist.get_code())
+        return codes
+
+    def delete_artist(self, artist_code):
+        artist = self.get_artist_by_code(artist_code)
+        if artist:
+            for song in artist.get_song_list():
+                for user in self.__users:
+                    try:
+                        user.delete_song(song)
+                    except AttributeError:
+                        pass
+                for genre in self.__genres:
+                    try:
+                        genre.remove_song(song)
+                    except AttributeError:
+                        pass
+                try:
+                    self.__songs.remove(song)
+                except AttributeError:
+                    pass
+            self.__artists.remove(artist)
+
+    def get_genres_names(self):
+        names = []
+        for genre in self.__genres:
+            names.append(genre.get_name())
+        return names
+
+    def generate_song_code(self):
+        code_length = 6
+        characters = string.ascii_letters + string.digits
+        code = ''.join(random.choice(characters) for _ in range(code_length))
+
+        while self.song_code_exists(code):
+            code = ''.join(random.choice(characters) for _ in range(code_length))
+
+        return code
+
+    def song_code_exists(self, code):
+        for artist in self.__artists.in_order_traversal():
+            for album in artist.get_albums():
+                if album.song_exists(code):
+                    return True
+        return False
+
+    def get_song_codes(self):
+        codes = []
+        for song in self.__songs:
+            codes.append(song.get_id())
+
+    def get_genre_by_name(self, name: str):
+        for genre in self.__genres:
+            if genre.name == name:
+                return genre
+
+    def delete_song(self, song_code):
+        song = self.get_song_by_code(song_code)
+        for user in self.__users:
+            try:
+                user.delete_song(song)
+            except AttributeError:
+                pass
+        for genre in self.__genres:
+            try:
+                genre.remove_song(song)
+            except AttributeError:
+                pass
+        for artist in self.__artists.in_order_traversal():
+            try:
+                artist.remove_song(song)
+            except AttributeError:
+                pass
+        self.__songs.remove_by_value(song)
+
+    def get_song_by_code(self, song_code):
+        for song in self.__songs:
+            if song.get_id() == song_code:
+                return song
+
+    def add_data_from_file(self, archivo: IO):
+        songs = self.__songs
+        artists = self.__artists
+        genres = self.__genres
+
+        try:
+            lines = archivo.readlines()
+            for line in lines:
+                arguments = LinkedList[str]()
+                for element in line.strip().split(":"):
+                    arguments.append(element)
+
+                if arguments.size() == 4:
+                    try:
+                        artists.add(Artist(str(arguments.get(0)).upper(),
+                                           str(arguments.get(1)).upper(),
+                                           str(arguments.get(2)).upper(),
+                                           arguments.get(3)))
+                        print("Artist added successfully")
+                    except AttributeError:
+                        print("Artist already exists")
+
+                elif arguments.size() == 7:
+                    aux_artist = Artist("", "", "", False)
+                    aux_album = Album("", "")
+                    aux_genre = Genre("")
+
+                    for artist in artists.in_order_traversal():
+                        if artist.get_name() == str(arguments.get(0)).upper():
+                            aux_artist = artist
+                            break
+
+                    for album in aux_artist.get_albums():
+                        if album.get_name() == arguments.get(2):
+                            aux_album = album
+                            break
+
+                    for genre in genres:
+                        if genre.get_name() == arguments.get(5):
+                            aux_genre = genre
+                            break
+
+                    if aux_artist.get_name() == "":
+                        if aux_genre.name == "":
+                            if aux_album.name == "":
+                                aux_album = Album(arguments.get(2), arguments.get(3))
+
+                            song = Song(arguments.get(1), "code_generator", aux_album,
+                                        aux_artist, arguments.get(3), int(arguments.get(4)),
+                                        aux_genre, arguments.get(6))
+                            try:
+                                aux_artist.add_song(song)
+                                aux_genre.add_song(song)
+                                songs.append(song)
+                                print("Song added successfully")
+                            except AttributeError:
+                                print("Song already exists")
+                        else:
+                            print("Genre not found")
+                    else:
+                        print("Artist not found")
+        except FileNotFoundError:
+            print("File not found")

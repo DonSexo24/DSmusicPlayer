@@ -111,13 +111,13 @@ def set_app():
     print("All songs in app\n")
 
     for song in app.get_songs():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
     print("Songs in user1\n")
 
     for song in user1.get_song_list():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
     print("Songs in user1 after 1 delete\n")
@@ -125,7 +125,7 @@ def set_app():
     user1.delete_song(s5)
 
     for song in user1.get_song_list():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
     print("Songs in user1 after 1 undo\n")
@@ -133,7 +133,7 @@ def set_app():
     user1.undo()
 
     for song in user1.get_song_list():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
     print("Songs in user1 after 1 redo\n")
@@ -141,14 +141,14 @@ def set_app():
     user1.redo()
 
     for song in user1.get_song_list():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
     print("Songs in user1 after 1 undo\n")
     user1.undo()
 
     for song in user1.get_song_list():
-        artist = song.get_artist()
+        artist = song.get_artists()
         print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
     print("\n----------------------------------------------------------------")
 

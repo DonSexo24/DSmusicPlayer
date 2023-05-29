@@ -103,7 +103,7 @@ class Tag(ComparableValue):
         if not self or not tag2:
             raise ValueError("String can't be null")
         if len(self.__attribute) == 0 or len(tag2.get_attribute()) == 0:
-            raise ValueError('Both strings must have length above 0')
+            return False
 
         string1 = self.__attribute.lower()
         string2 = tag2.get_attribute().lower()
@@ -147,8 +147,11 @@ class Song(ComparableValue):
         genre.add_song(self)
         self.__url = url
         self.__tags = BinaryTree[Tag]()
+        self.__tags.add(Tag(name))
+        self.__tags.add(Tag(year))
         self.__tags.add(Tag(self.__genre.get_name()))
         self.__tags.add(Tag(self.__artist.get_name()))
+        print(self.__artist.get_name(), "name")
         self.__tags.add(Tag(album.name))
         self.__tags.balance()
 

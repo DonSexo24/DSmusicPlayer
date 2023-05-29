@@ -62,6 +62,7 @@ class LoginView:
                 self.factory = pickle.load(archivo)
         except FileNotFoundError:
             print("El archivo no se encuentra.")
+            self.factory = Factory()
             self.save_Factory()
         except pickle.UnpicklingError:
             print("Error al deserializar el objeto.")

@@ -488,6 +488,7 @@ class AdminView:
         if archivo is not None:
             if messagebox.askyesno("Confirmation", "Want to add Artists and Songs from File?"):
                 self.factory.add_data_from_file(archivo)
+                self.save_factory()
 
     def save_factory(self):
         factory_aux = pickle.dumps(self.factory)

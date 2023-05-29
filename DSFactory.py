@@ -257,7 +257,7 @@ class Factory:
             lines = archivo.readlines()
             for line in lines:
                 arguments = LinkedList[str]()
-                for element in line.strip().split(":"):
+                for element in line.strip().split(";"):
                     arguments.append(element)
 
                 if arguments.size() == 4:
@@ -265,7 +265,7 @@ class Factory:
                         artists.add(Artist(str(arguments.get(0)).upper(),
                                            str(arguments.get(1)).upper(),
                                            str(arguments.get(2)).upper(),
-                                           arguments.get(3)))
+                                           eval(str(arguments.get(3)))))
                         print("Artist added successfully")
                     except AttributeError:
                         print("Artist already exists")
@@ -281,7 +281,7 @@ class Factory:
                             break
 
                     for album in aux_artist.get_albums():
-                        if album.get_name() == arguments.get(2):
+                        if album.name == arguments.get(2):
                             aux_album = album
                             break
 
@@ -290,12 +290,13 @@ class Factory:
                             aux_genre = genre
                             break
 
-                    if aux_artist.get_name() == "":
-                        if aux_genre.name == "":
+                    if aux_artist.get_name() != "":
+                        if aux_genre.get_name() == "":
                             self.add_genre(Genre(str(arguments.get(5)).upper()))
 
                         if aux_album.name == "":
                             aux_album = Album(arguments.get(2), arguments.get(3))
+                            aux_artist.add_album(aux_album)
 
                         song = Song(arguments.get(1), self.generate_song_code(), aux_album,
                                     aux_artist, arguments.get(3), int(arguments.get(4)),
@@ -313,11 +314,10 @@ class Factory:
 
                         try:
                             aux_artist.add_song(song)
-                            aux_genre.add_song(song)
                             songs.append(song)
                             print("Song added successfully")
                         except AttributeError:
-                            print("Song already exists")
+                            pass
                     else:
                         print("Artist not found")
         except FileNotFoundError:

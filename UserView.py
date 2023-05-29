@@ -41,7 +41,7 @@ class HomePlayer:
 
         self.song_row_scroller.pack()
 
-        self.control_bar = ControlBar(self.window, self.user.get_song_list(), self.toggle_song_in_user_list)
+        self.control_bar = ControlBar(self.window, self.user.get_song_list(), self.toggle_song_in_user_list, self.user)
         self.control_bar.pack(pady=30)
 
         self.search_bar.show_home_songs()
@@ -238,26 +238,33 @@ class SearchBar(tk.Frame):
 
 
 class ControlBar(tk.Frame):
-    def __init__(self, master, mix, toggle_song_callback):
+    def __init__(self, master, mix, toggle_song_callback, user: User):
         super().__init__(master)
         # Initialize Widgets
+        self.user = user
         self.song_info_label = tk.Label(self, text="", font=("Arial", 12))
-        self.song_info_label.grid(row=0, columnspan=3, pady=5, padx=10)
+        self.song_info_label.grid(row=0, columnspan=5, pady=5, padx=10)
 
         self.song_image_label = tk.Label(self)
-        self.song_image_label.grid(row=1, columnspan=3, pady=5, padx=10)
+        self.song_image_label.grid(row=1, columnspan=5, pady=5, padx=10)
+
+        self.undo_button = tk.Button(self, text="Undo", command=self.undo)
+        self.undo_button.grid(row=2, column=0, pady=5, padx=10)
 
         self.prev_button = tk.Button(self, text="Prev", command=self.prev_song)
-        self.prev_button.grid(row=2, column=0, pady=5, padx=10)
+        self.prev_button.grid(row=2, column=1, pady=5, padx=10)
 
         self.play_button = tk.Button(self, text="Play", command=self.toggle_playback)
-        self.play_button.grid(row=2, column=1, pady=5, padx=10)
+        self.play_button.grid(row=2, column=2, pady=5, padx=10)
 
         self.next_button = tk.Button(self, text="Next", command=self.next_song)
-        self.next_button.grid(row=2, column=2, pady=5, padx=10)
+        self.next_button.grid(row=2, column=3, pady=5, padx=10)
+
+        self.redo_button = tk.Button(self, text="Redo", command=self.redo)
+        self.redo_button.grid(row=2, column=4, pady=5, padx=10)
 
         self.progress_bar = ttk.Progressbar(self, orient=tk.HORIZONTAL, length=300, mode='determinate')
-        self.progress_bar.grid(row=3, columnspan=3, pady=5, padx=10)
+        self.progress_bar.grid(row=3, columnspan=5, pady=5, padx=10)
 
         self.progress = 0
         self.length = 0
@@ -399,3 +406,15 @@ class ControlBar(tk.Frame):
             self.update_song_image()
             self.playing = False
             self.paused = False
+
+    def undo(self):
+        self.user.undo()
+        self.current_mix = self.user.get_song_list()
+        self.update_song_image()
+        self.update_song_info()
+
+    def redo(self):
+        self.user.redo()
+        self.current_mix = self.user.get_song_list()
+        self.update_song_image()
+        self.update_song_info()

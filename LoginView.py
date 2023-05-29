@@ -13,8 +13,6 @@ class LoginView:
 
     def __init__(self):
         self.load_Factory()
-        for song in self.factory.get_songs():
-            print(song.get_id())
         # Create the login window
         self.window = tk.Tk()
         self.window.title("Login")

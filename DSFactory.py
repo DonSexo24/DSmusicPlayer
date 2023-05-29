@@ -1,5 +1,6 @@
 import os
 import random
+import shutil
 import string
 from tkinter import messagebox
 from typing import IO
@@ -184,10 +185,17 @@ class Factory:
                         genre.remove_song(song)
                     except AttributeError:
                         pass
+                for album in artist.get_albums():
+                    try:
+                        album.songs.remove(song)
+                    except AttributeError:
+                        pass
                 try:
                     self.__songs.remove(song)
+                    self.remove_song_files(song)
                 except AttributeError:
                     pass
+
             self.__artists.remove(artist)
 
     def get_genres_names(self):
@@ -242,6 +250,7 @@ class Factory:
             except AttributeError:
                 pass
         self.__songs.remove_by_value(song)
+        self.remove_song_files(song)
 
     def get_song_by_code(self, song_code):
         for song in self.__songs:
@@ -346,3 +355,6 @@ class Factory:
             messagebox.showwarning("Warning",
                                    "Can't proceed until   " + image_name + "   is located in:\n" + path)
             self.audio_listener(song)
+
+    def remove_song_files(self, song):
+        shutil.rmtree(os.path.join(os.getcwd(), "Files", song.get_id()))

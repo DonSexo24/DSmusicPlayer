@@ -5,7 +5,7 @@ import string
 from tkinter import messagebox
 from typing import IO
 
-from Addons import Artist, Song, Tag, Genre, Album
+from Addons import Artist, Song, Tag, Genre, Album, get_all_filtered_songs, get_any_filtered_songs
 from DSnest import BinaryTree, HashMap, LinkedList
 from Users import User
 
@@ -89,6 +89,95 @@ class Factory:
         self.add_user_song(user1, s4_4)
         self.add_user_song(user1, s1)
         self.add_user_song(user1, s4_1)
+
+        print(str(s5.contains_true_tag(Tag("ding"))) + "\n")
+        print(str(s5.contains_partial_tag(Tag("ding"))) + "\n")
+        print("Compatibility of tag 'Trend' in all tags of all songs in app\n")
+
+        for song in self.get_songs():
+            for tag in song.get_all_tags():
+                print(song.get_name(), tag.get_attribute(), "== Trend ->", str(tag.get_compatibility(Tag("Trend"))))
+        print("\n----------------------------------------------------------------")
+        print("Compatibility of tag 'a' in all tags of all songs in app\n")
+
+        for song in self.get_songs():
+            for tag in song.get_all_tags():
+                print(song.get_name(), tag.get_attribute(), "== a ->", str(tag.get_compatibility(Tag("a"))))
+        print("\n----------------------------------------------------------------")
+        print("All tags compatible with 'a' of all songs in app\n")
+
+        for song in self.get_songs():
+            for tag in song.get_filtered_tags(Tag("a")):
+                print(song.get_name(), tag.get_attribute())
+        print("\n----------------------------------------------------------------")
+        print("All songs in app\n")
+
+        for song in self.get_songs():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+        print("Songs in user1\n")
+
+        for song in user1.get_song_list():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+        print("Songs in user1 after 1 delete\n")
+
+        user1.delete_song(s5)
+
+        for song in user1.get_song_list():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+        print("Songs in user1 after 1 undo\n")
+
+        user1.undo()
+
+        for song in user1.get_song_list():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+        print("Songs in user1 after 1 redo\n")
+
+        user1.redo()
+
+        for song in user1.get_song_list():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+        print("Songs in user1 after 1 undo\n")
+        user1.undo()
+
+        for song in user1.get_song_list():
+            artist = song.get_artist()
+            print(song.get_name(), song.get_id(), artist.get_name(), song.get_url())
+        print("\n----------------------------------------------------------------")
+
+        print("All users\n")
+
+        for user in self.get_users():
+            print(user.username)
+
+        print("\n----------------------------------------------------------------")
+        print("Songs compatible with 'PoP and 'aLOr'")
+
+        aux_tags = LinkedList[Tag]()
+        aux_tags.append(Tag("PoP"))
+        aux_tags.append(Tag("aLOr"))
+
+        for song in get_all_filtered_songs(aux_tags, self.get_songs()):
+            print(song.get_name())
+        print("\n----------------------------------------------------------------")
+        print("Songs compatible with 'PoP or 'aLOr'")
+
+        aux_tags = LinkedList[Tag]()
+        aux_tags.append(Tag("PoP"))
+        aux_tags.append(Tag("aLOr"))
+
+        for song in get_any_filtered_songs(aux_tags, self.get_songs()):
+            print(song.get_name())
+        print("\n----------------------------------------------------------------")
         
 
 

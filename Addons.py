@@ -48,21 +48,20 @@ class Album(ComparableValue):
     def add_song(self, song: 'Song'):
         self.songs.append(song)
 
-
     def __lt__(self, other: 'Album') -> bool:
-        return self.name < other.name
+        return self.name.upper() < other.name.upper()
 
     def __gt__(self, other: 'Album') -> bool:
-        return self.name > other.name
+        return self.name.upper() > other.name.upper()
 
     def __eq__(self, other: 'Album') -> bool:
-        return self.name == other.name
+        return self.name.upper() == other.name.upper()
 
     def __le__(self, other: 'Album') -> bool:
-        return self.name <= other.name
+        return self.name.upper() <= other.name.upper()
 
     def __ge__(self, other: 'Album') -> bool:
-        return self.name >= other.name
+        return self.name.upper() >= other.name.upper()
 
 
 # -------------------------------------------------------------------------------------------------------------------#

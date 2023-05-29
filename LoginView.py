@@ -1,3 +1,4 @@
+import os
 import pickle
 import tkinter as tk
 from tkinter import messagebox
@@ -11,7 +12,6 @@ from UserView import HomePlayer
 class LoginView:
 
     def __init__(self):
-        self.factory = Factory()
         self.load_Factory()
         # Create the login window
         self.window = tk.Tk()
@@ -52,14 +52,13 @@ class LoginView:
 
         # Set the window position
         self.window.geometry(f"+{x}+{y}")
-
         # Start the main window loop
         self.window.mainloop()
 
     # Function to handle the login process
     def load_Factory(self):
         try:
-            with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "rb") as archivo:
+            with open(os.path.join(os.getcwd(), "factory.pkl"), "rb") as archivo:
                 self.factory = pickle.load(archivo)
         except FileNotFoundError:
             print("El archivo no se encuentra.")
@@ -70,7 +69,7 @@ class LoginView:
 
     def save_Factory(self):
         factory_aux = pickle.dumps(self.factory)
-        with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "wb") as archivo:
+        with open(os.path.join(os.getcwd(), "factory.pkl"), "wb") as archivo:
             archivo.write(factory_aux)
 
     def login(self):

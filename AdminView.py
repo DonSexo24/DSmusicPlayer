@@ -1,3 +1,6 @@
+import os
+import pickle
+
 from Addons import Artist, Album, Song
 from DSFactory import Factory
 import tkinter as tk
@@ -8,7 +11,6 @@ from tkinter import ttk
 class AdminView:
     def __init__(self, factory: Factory):
         self.factory = factory
-
         self.window = tk.Tk()
         self.window.title("Admin View")
 
@@ -178,10 +180,12 @@ class AdminView:
             artist.set_country(country)
             artist.set_is_group(eval(is_group))
             messagebox.showinfo("Success", "Artist updated successfully!")
+            self.save_factory()
         else:
             artist = Artist(code=code, name=name, country=country, is_group=eval(is_group))
             self.factory.add_artist(artist)
             messagebox.showinfo("Success", "Artist added successfully!")
+            self.save_factory()
 
         self.artist_spinner['values'] = list(self.factory.get_artist_codes())
         self.clear_artist_selection()
@@ -195,6 +199,7 @@ class AdminView:
                 self.artist_spinner.set("")
                 self.artist_spinner['values'] = list(self.factory.get_artist_codes())
                 self.clear_artist_selection()
+                self.save_factory()
         else:
             messagebox.showerror("Error", "No artist selected.")
 
@@ -271,6 +276,7 @@ class AdminView:
                 messagebox.showinfo("Success", "Album added successfully!")
             self.album_spinner['values'] = artist.get_albums_names()
             self.album_popup.destroy()
+            self.save_factory()
         else:
             messagebox.showerror("Error", "No artist selected.")
 
@@ -282,6 +288,7 @@ class AdminView:
                 self.factory.get_artist_by_code(artist_code).delete_album_by_name(album_name)
                 self.album_spinner.set("")
                 self.album_spinner['values'] = self.factory.get_artist_by_code(artist_code).get_albums_names()
+                self.save_factory()
         else:
             messagebox.showerror("Error", "No artist or album selected.")
 
@@ -309,7 +316,7 @@ class AdminView:
             self.song_name_entry.grid(row=2, column=1)
 
             tk.Label(self.song_popup, text="Album:").grid(row=3, column=0, sticky=tk.W)
-            self.song_album_spinner = ttk.Combobox(self.song_popup, values=[], width=20)
+            self.song_album_spinner = ttk.Combobox(self.song_popup, values=album_name, width=20)
             self.song_album_spinner.grid(row=3, column=1)
 
             tk.Label(self.song_popup, text="Year:").grid(row=4, column=0, sticky=tk.W)
@@ -442,11 +449,22 @@ class AdminView:
                 song = Song(code=song_code, artist=artist, name=song_name, album=artist.get_album_by_name(song_album),
                             year=song_year, duration=int(song_duration),
                             genre=self.factory.get_genre_by_name(song_genre), url=song_url)
-                album.add_song(song)
+                try:
+                    song.get_audio_path()
+                except AttributeError:
+                    self.audio_listener(song)
+
+                try:
+                    song.image_audio_path()
+                except AttributeError:
+                    self.image_listener(song)
+
+                self.factory.add_song(song)
                 messagebox.showinfo("Success", "Song added successfully!")
 
             self.song_spinner['values'] = album.get_song_codes()
             self.song_popup.destroy()
+            self.save_factory()
         else:
             messagebox.showerror("Error", "No artist, album, or song selected.")
 
@@ -460,6 +478,7 @@ class AdminView:
                 self.song_spinner.set("")
                 self.song_spinner['values'] = self.factory.get_artist_by_code(artist_code).get_album_by_name(
                     album_name).get_song_codes()
+                self.save_factory()
         else:
             messagebox.showerror("Error", "No artist, album, or song selected.")
 
@@ -469,3 +488,33 @@ class AdminView:
         if archivo is not None:
             if messagebox.askyesno("Confirmation", "Want to add Artists and Songs from File?"):
                 self.factory.add_data_from_file(archivo)
+
+    def save_factory(self):
+        factory_aux = pickle.dumps(self.factory)
+        with open(os.path.join(os.getcwd(), "factory.pkl"), "wb") as archivo:
+            archivo.write(factory_aux)
+
+    def audio_listener(self, song):
+        path = os.path.join(os.getcwd(), "Files", song.get_id())
+        audio_name = song.get_id() + ".mp3"
+        audio = os.path.join(path, audio_name)
+
+        if os.path.exists(audio):
+            messagebox.showinfo("Success", "Audio located!")
+        else:
+            messagebox.showwarning("Warning",
+                                   "Can't proceed until   " + audio_name + "   is located in:\n" + path)
+            self.audio_listener(song)
+
+    def image_listener(self, song):
+        path = os.path.join(os.getcwd(), "Files", song.get_id())
+        image_name = song.get_id() + ".png"
+        image = os.path.join(path, image_name)
+
+        if os.path.exists(image):
+            messagebox.showinfo("Success", "Image located!")
+        else:
+            messagebox.showwarning("Warning",
+                                   "Can't proceed until   " + image_name + "   is located in:\n" + path)
+            self.audio_listener(song)
+

@@ -1,5 +1,9 @@
+import glob
 import os
+import shutil
+import subprocess
 import urllib
+from tkinter import filedialog
 
 from pytube import YouTube
 import youtube_dl
@@ -40,6 +44,9 @@ class Album(ComparableValue):
         for song in self.songs:
             if song.get_id() == song_code:
                 return song
+
+    def add_song(self, song: 'Song'):
+        self.songs.append(song)
 
 
     def __lt__(self, other: 'Album') -> bool:
@@ -204,8 +211,7 @@ class Song(ComparableValue):
         return retrieve_image_path(self.__id, self.__url, path)
 
     def get_audio_path(self):
-        path = os.path.join(os.getcwd(), "Files")
-        return retrieve_audio_path(self.__id, self.__url, path)
+        return retrieve_audio_path(self.__id, self.__url, os.getcwd())
 
     def get_all_tags(self) -> []:
         return self.__tags.in_order_traversal()
@@ -502,15 +508,12 @@ def genre_with_most_songs(genres: LinkedList[Genre]) -> LinkedList[Genre]:
 # -------------------------------------------------------------------------------------------------------------------#
 
 def retrieve_audio_path(song_id: str, url, root_path: str) -> str:
-    folder_path = os.path.join(root_path, song_id)
+    folder_path = os.path.join(root_path, "Files", song_id)
     audio_path = os.path.join(folder_path, song_id + ".mp3")
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
     if not os.path.exists(audio_path):
-        if not os.path.exists(folder_path):
-            os.mkdir(folder_path)
-        try:
-            __download_audio(song_id, url, folder_path)
-        except FileNotFoundError:
-            print("Error while downloading mp3")
+        raise AttributeError("Audio file not found")
     return audio_path
 
 
@@ -526,34 +529,6 @@ def retrieve_image_path(song_id: str, url: str, root_path: str) -> str:
             print("Error while downloading img")
     return image_path
 
-
-"""
-def __download_audio(song_id: str, url, folder_path: str):
-    audio_path = os.path.join(folder_path, song_id + ".mp3")
-    youtube_stream = YouTube(str(url))
-    video = youtube_stream.streams.filter(only_audio=True).first()
-    out_file = video.download(output_path=folder_path)
-    os.rename(out_file, audio_path)
-    print(audio_path.title(), "downloaded at", folder_path.title())
-    
-"""
-
-
-def __download_audio(song_id: str, url, folder_path: str):
-    audio_path = os.path.join(folder_path, song_id + ".mp3")
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': audio_path,
-    }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
-
-    print(audio_path.title(), "downloaded at", folder_path.title())
 
 
 def __download_image(song_id: str, url, folder_path: str):

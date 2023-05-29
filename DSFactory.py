@@ -1,5 +1,7 @@
+import os
 import random
 import string
+from tkinter import messagebox
 from typing import IO
 
 from Addons import Artist, Song, Tag, Genre, Album
@@ -215,10 +217,11 @@ class Factory:
         codes = []
         for song in self.__songs:
             codes.append(song.get_id())
+        return codes
 
     def get_genre_by_name(self, name: str):
         for genre in self.__genres:
-            if genre.name == name:
+            if genre.get_name() == name:
                 return genre
 
     def delete_song(self, song_code):
@@ -297,6 +300,17 @@ class Factory:
                         song = Song(arguments.get(1), self.generate_song_code(), aux_album,
                                     aux_artist, arguments.get(3), int(arguments.get(4)),
                                     aux_genre, arguments.get(6))
+
+                        try:
+                            song.get_audio_path()
+                        except AttributeError:
+                            self.audio_listener(song)
+
+                        try:
+                            song.get_cover_path()
+                        except AttributeError:
+                            self.image_listener(song)
+
                         try:
                             aux_artist.add_song(song)
                             aux_genre.add_song(song)
@@ -308,3 +322,27 @@ class Factory:
                         print("Artist not found")
         except FileNotFoundError:
             print("File not found")
+
+    def audio_listener(self, song):
+        path = os.path.join(os.getcwd(), "Files", song.get_id())
+        audio_name = song.get_id() + ".mp3"
+        audio = os.path.join(path, audio_name)
+
+        if os.path.exists(audio):
+            messagebox.showinfo("Success", "Audio located!")
+        else:
+            messagebox.showwarning("Warning",
+                                   "Can't proceed until   " + audio_name + "   is located in:\n" + path)
+            self.audio_listener(song)
+
+    def image_listener(self, song):
+        path = os.path.join(os.getcwd(), "Files", song.get_id())
+        image_name = song.get_id() + ".png"
+        image = os.path.join(path, image_name)
+
+        if os.path.exists(image):
+            messagebox.showinfo("Success", "Image located!")
+        else:
+            messagebox.showwarning("Warning",
+                                   "Can't proceed until   " + image_name + "   is located in:\n" + path)
+            self.audio_listener(song)

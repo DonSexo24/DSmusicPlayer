@@ -1,3 +1,4 @@
+import os
 import pickle
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -84,7 +85,8 @@ class HomePlayer:
 
     def load_Factory(self):
         try:
-            with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "rb") as archivo:
+            print(os.path.join(os.getcwd(), "factory.pkl"), os.path.exists(os.path.join(os.getcwd(), "factory.pkl")))
+            with open(os.path.join(os.getcwd(), "factory.pkl"), "rb") as archivo:
                 self.factory = pickle.load(archivo)
         except FileNotFoundError:
             print("El archivo no se encuentra.")
@@ -95,7 +97,7 @@ class HomePlayer:
 
     def save_Factory(self):
         factory_aux = pickle.dumps(self.factory)
-        with open(r"C:\Users\Samuel\PycharmProjects\DSmusicPlayer\factory.pkl", "wb") as archivo:
+        with open(os.path.join(os.getcwd(), "factory.pkl"), "wb") as archivo:
             archivo.write(factory_aux)
 
 
@@ -313,7 +315,7 @@ class ControlBar(tk.Frame):
 
     def update_song_info(self):
         if self.current_song:
-            song_info = f"Song: {self.current_song.get_name()} | Artist: {self.current_song.get_artists().get_name()} | Album: {self.current_song.get_album().name}"
+            song_info = f"Song: {self.current_song.get_name()} | Artist: {self.current_song.get_artist().get_name()} | Album: {self.current_song.get_album().name}"
             self.song_info_label.configure(text=song_info)
         else:
             self.song_info_label.configure(text="No song selected")

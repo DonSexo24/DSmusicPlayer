@@ -2,7 +2,7 @@ import os
 import pickle
 import tkinter as tk
 from tkinter import ttk, messagebox
-from Addons import Song, get_all_filtered_songs, Tag, get_any_filtered_songs
+from Addons import Song, get_all_filtered_songs, Tag, get_any_filtered_songs, genre_with_most_songs
 import pygame
 from PIL import Image, ImageTk
 from DSFactory import Factory
@@ -209,9 +209,12 @@ class SearchBar(tk.Frame):
         self.favorites_button = tk.Button(self, text="My Favorites", command=self.show_user_songs)
         self.favorites_button.grid(row=0, column=4, padx=10, pady=2)
 
+        self.genre_button = tk.Button(self, text="+ Genre", command=self.show_genre_songs)
+        self.genre_button.grid(row=0, column=5, padx=10, pady=2)
+
         self.label_text = tk.StringVar()
         self.label = tk.Label(self, textvariable=self.label_text)
-        self.label.grid(row=1, column=0, columnspan=5, padx=10, pady=2)
+        self.label.grid(row=1, column=0, columnspan=6, padx=10, pady=2)
 
     def search(self):
         query = self.search_bar_entry.get()
@@ -235,6 +238,16 @@ class SearchBar(tk.Frame):
     def show_user_songs(self):
         self.home.switch_song_list(self.home.user.get_song_list())
         self.label_text.set("Songs in: My Favorites")
+
+    def show_genre_songs(self):
+        genres = genre_with_most_songs(self.home.factory.get_genres())
+        songs = LinkedList[Song]()
+        for genre in genres:
+            for song in genre.get_songs():
+                songs.append(song)
+
+        self.home.switch_song_list(songs)
+        self.label_text.set("Genre(s) with most songs: ")
 
 
 class ControlBar(tk.Frame):
